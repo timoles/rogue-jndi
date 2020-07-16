@@ -4,8 +4,14 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.UnixStyleUsageFormatter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 
 public class Config {
 
@@ -37,6 +43,10 @@ public class Config {
                     "(this file should be located on the remote server)", order = 5)
     public static String localjar = "../../../../../tmp/jar_cache7808167489549525095.tmp";
 
+    @Parameter(names = {"--jsFile"}, description = "Path to a JavaScript code file" +
+                    "(this code will be executed instead of Runtime.getRuntime().exec())", order = 6)
+    public static String jsFile = "";
+
     @Parameter(names = {"-h", "--help"}, help = true, description = "Show this help")
     private static boolean help = false;
 
@@ -52,6 +62,17 @@ public class Config {
         if(help) {
             jc.usage(); //if -h specified, show help and exit
             System.exit(0);
+        }
+
+        if (Config.jsFile != "") {
+            try { //try to read the js file
+                Path path = Paths.get(Config.jsFile);
+                BufferedReader reader = Files.newBufferedReader(path);
+                Config.jsFile = new String(Files.readAllBytes(path)).replace("\"", "\\\"").replace("\n", "");
+            } catch(IOException e){
+                System.err.println("Could not read --jsFile path, exiting...");
+                System.exit(1);
+            }
         }
     }
 }

